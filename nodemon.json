@@ -1,0 +1,4 @@
+{
+    "ignore": ["src/data/*", "sessions/*"],
+    "delay": "2000"
+  }

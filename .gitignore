@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+
+# WhatsApp session data
+sessions/
+
+# Runtime data
+src/data/
+*.log
+
+# OS files
+.DS_Store
+
+# Editor directories
+.idea/
+.vscode/
