@@ -1,5 +1,8 @@
 const express = require('express');
 const app = express();
+const Logger = require('./utils/logger');
+
+// Use Render's assigned port or fallback to 3000
 const port = process.env.PORT || 3000;
 
 app.get('/health', (req, res) => {
@@ -7,7 +10,7 @@ app.get('/health', (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+    Logger.info(`Server running on port ${port}`);
 });
 
 module.exports = app;
