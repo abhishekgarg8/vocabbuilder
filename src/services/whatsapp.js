@@ -21,8 +21,14 @@ class WhatsAppClient {
     initializeClient() {
         // Handle QR code generation
         this.client.on('qr', (qr) => {
-            Logger.info('QR Code received. Scan with WhatsApp mobile app:');
-            qrcode.generate(qr, { small: true });
+            // Print QR in a more visible format
+            Logger.info('='.repeat(50));
+            Logger.info('SCAN QR CODE BELOW:');
+            Logger.info('='.repeat(50));
+            qrcode.generate(qr, { small: false }); // Changed to larger QR code
+            Logger.info('='.repeat(50));
+            Logger.info('After scanning, wait for the "WhatsApp client is ready!" message');
+            Logger.info('='.repeat(50));
         });
 
         // Handle successful authentication
