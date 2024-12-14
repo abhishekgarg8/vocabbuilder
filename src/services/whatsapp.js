@@ -38,7 +38,12 @@ class WhatsAppClient {
 
         // Handle connection events
         this.client.on('authenticated', () => {
+            const fs = require('fs');
             Logger.info('WhatsApp client authenticated');
+            Logger.info('Checking sessions directory:', fs.existsSync('./sessions'));
+            if (fs.existsSync('./sessions')) {
+                Logger.info('Session files:', fs.readdirSync('./sessions'));
+            }
         });
 
         this.client.on('auth_failure', (msg) => {
