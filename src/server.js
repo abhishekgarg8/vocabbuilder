@@ -47,7 +47,7 @@ app.get('/scheduler-status', (req, res) => {
     }
 });
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 10000;
 app.listen(port, () => {
     Logger.info(`Server running on port ${port}`);
 });
