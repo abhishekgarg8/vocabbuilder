@@ -19,13 +19,31 @@ app.get('/scheduler-status', (req, res) => {
     });
 });
 
+async function startServer() {
+    return new Promise((resolve, reject) => {
+        try {
+            const port = process.env.PORT || 10000;
+            const server = app.listen(port, '0.0.0.0', () => {
+                Logger.info(`Server is running on port ${port}`);
+                resolve(server);
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
 async function initialize() {
     Logger.info('Starting VocabBuilder Service...');
     Logger.info(`Environment: ${config.environment}`);
 
     try {
+        // Start server first
+        await startServer();
+        Logger.info('Server started successfully');
+
+        // Then initialize WhatsApp
         const whatsappClient = new WhatsAppClient();
-        
         whatsappClient.client.on('ready', async () => {
             Logger.info('WhatsApp client is ready, initializing scheduler...');
             try {
@@ -38,13 +56,6 @@ async function initialize() {
         });
 
         await whatsappClient.start();
-
-        // Start the server
-        const port = process.env.PORT || 10000;
-        app.listen(port, '0.0.0.0', () => {
-            Logger.info(`Server is running on port ${port}`);
-        });
-
     } catch (error) {
         Logger.error('Failed to start service:', error);
         process.exit(1);
