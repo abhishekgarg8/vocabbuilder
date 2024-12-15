@@ -34,6 +34,13 @@ class WhatsAppClient {
         // Handle successful authentication
         this.client.on('ready', () => {
             Logger.info('WhatsApp client is ready!');
+            Logger.info('Client connection state:', this.client.getState());
+            Logger.info('Checking if client can send messages...');
+            
+            // Test if basic client functions are available
+            if (this.client.sendMessage) {
+                Logger.info('Message sending capability is available');
+            }
         });
 
         // Handle connection events
