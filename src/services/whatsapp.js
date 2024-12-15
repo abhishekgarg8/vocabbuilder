@@ -40,9 +40,21 @@ class WhatsAppClient {
         this.client.on('authenticated', () => {
             const fs = require('fs');
             Logger.info('WhatsApp client authenticated');
-            Logger.info('Checking sessions directory:', fs.existsSync('./sessions'));
-            if (fs.existsSync('./sessions')) {
-                Logger.info('Session files:', fs.readdirSync('./sessions'));
+            try {
+                Logger.info('Current working directory:', process.cwd());
+                const sessionsPath = './sessions';
+                Logger.info('Sessions directory exists:', fs.existsSync(sessionsPath));
+                if (fs.existsSync(sessionsPath)) {
+                    const files = fs.readdirSync(sessionsPath);
+                    Logger.info('Session files found:', JSON.stringify(files));
+                } else {
+                    Logger.info('No sessions directory found at:', sessionsPath);
+                    // Try to create directory
+                    fs.mkdirSync(sessionsPath, { recursive: true });
+                    Logger.info('Created sessions directory');
+                }
+            } catch (error) {
+                Logger.error('Error checking sessions:', error);
             }
         });
 
