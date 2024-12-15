@@ -52,28 +52,39 @@ async sendDailyWord() {
         Logger.error('Word data:', error.word);  // Log the word data if available
     }
 }
-    start() {
-        const cronExpression = '0 5 * * *'; // 5 AM daily
-        Logger.info(`Scheduler: Setting up daily messages for ${cronExpression} Pacific Time`);
-        
-        cron.schedule(cronExpression, 
-            () => this.sendDailyWord(), 
+start() {
+    const cronExpression = '0 5 * * *'; // 5 AM daily
+    Logger.info('==== Scheduler Verification ====');
+    Logger.info(`Setting up scheduler with expression: ${cronExpression}`);
+    
+    try {
+        const job = cron.schedule(cronExpression, 
+            () => {
+                Logger.info('Cron job triggered');
+                this.sendDailyWord();
+            }, 
             {
-                timezone: 'America/Los_Angeles'
+                timezone: 'America/Los_Angeles',
+                scheduled: true
             }
         );
+
+        Logger.info('Scheduler status:', job.getStatus());
         
-        Logger.info('Scheduler: Successfully started! Next word will be sent at 5 AM Pacific Time');
-        
-        // Optional: Log when the next word will be sent
-        const now = new Date();
-        const next5AM = new Date();
-        next5AM.setHours(5, 0, 0, 0);
-        if (now.getHours() >= 5) {
-            next5AM.setDate(next5AM.getDate() + 1);
+        // Calculate next run
+        const nextRun = new Date();
+        nextRun.setHours(5, 0, 0, 0);
+        if (nextRun < new Date()) {
+            nextRun.setDate(nextRun.getDate() + 1);
         }
-        Logger.info(`Scheduler: Next word will be sent at: ${next5AM.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}`);
+        Logger.info(`Next scheduled run: ${nextRun.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}`);
+        
+        return job;
+    } catch (error) {
+        Logger.error('Failed to start scheduler:', error);
+        throw error;
     }
+}
 }
 
 module.exports = Scheduler;
