@@ -41,20 +41,40 @@ class WhatsAppClient {
             const fs = require('fs');
             Logger.info('WhatsApp client authenticated');
             try {
-                Logger.info('Current working directory:', process.cwd());
+                const cwd = process.cwd();
+                Logger.info(`Current working directory: ${cwd}`);
+                
                 const sessionsPath = './sessions';
-                Logger.info('Sessions directory exists:', fs.existsSync(sessionsPath));
-                if (fs.existsSync(sessionsPath)) {
-                    const files = fs.readdirSync(sessionsPath);
-                    Logger.info('Session files found:', JSON.stringify(files));
+                const exists = fs.existsSync(sessionsPath);
+                Logger.info(`Sessions directory exists: ${exists}`);
+        
+                // Try to list all directories in current path
+                Logger.info('Directory contents:', fs.readdirSync('.'));
+                
+                if (exists) {
+                    try {
+                        const files = fs.readdirSync(sessionsPath);
+                        Logger.info(`Number of session files: ${files.length}`);
+                        Logger.info(`Session files: ${JSON.stringify(files)}`);
+                        
+                        // Check permissions
+                        const stats = fs.statSync(sessionsPath);
+                        Logger.info(`Sessions directory permissions: ${stats.mode}`);
+                    } catch (e) {
+                        Logger.error(`Error reading sessions directory: ${e.message}`);
+                    }
                 } else {
-                    Logger.info('No sessions directory found at:', sessionsPath);
-                    // Try to create directory
-                    fs.mkdirSync(sessionsPath, { recursive: true });
-                    Logger.info('Created sessions directory');
+                    Logger.info(`Attempting to create sessions directory at: ${sessionsPath}`);
+                    try {
+                        fs.mkdirSync(sessionsPath, { recursive: true, mode: 0o777 });
+                        Logger.info('Successfully created sessions directory');
+                    } catch (e) {
+                        Logger.error(`Error creating sessions directory: ${e.message}`);
+                    }
                 }
             } catch (error) {
-                Logger.error('Error checking sessions:', error);
+                Logger.error(`Error in session check: ${error.message}`);
+                Logger.error(`Full error: ${error.stack}`);
             }
         });
 
