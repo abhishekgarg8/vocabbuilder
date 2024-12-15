@@ -103,6 +103,7 @@ class WhatsAppClient {
         try {
             Logger.info('Initializing WhatsApp client...');
             await this.client.initialize();
+            Logger.info('WhatsApp initialization completed');
         } catch (error) {
             Logger.error('Failed to initialize WhatsApp client:', error);
             throw error;
