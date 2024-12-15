@@ -6,7 +6,7 @@ require('./server');
 
 let whatsappClient = null;
 let scheduler = null;
-
+global.scheduler = null;
 async function initialize() {
     Logger.info('Starting VocabBuilder Service...');
     Logger.info(`Environment: ${config.environment}`);
@@ -16,15 +16,14 @@ async function initialize() {
         await whatsappClient.start();
 
         whatsappClient.client.on('ready', async () => {
-            Logger.info('WhatsApp client is ready');
+            Logger.info('WhatsApp client is ready, initializing scheduler...');
             
             try {
-                // Start scheduler
-                scheduler = new Scheduler(whatsappClient, config);
-                scheduler.start();
-                Logger.info('Scheduler started successfully - Words will be sent daily at 5 AM Pacific Time');
+                global.scheduler = new Scheduler(whatsappClient, config);
+                global.scheduler.start();
+                Logger.info('Scheduler initialized and started successfully');
             } catch (error) {
-                Logger.error('Error in initialization:', error);
+                Logger.error('Failed to initialize scheduler:', error);
             }
         });
     } catch (error) {
