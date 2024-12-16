@@ -19,6 +19,18 @@ app.get('/scheduler-status', (req, res) => {
     });
 });
 
+app.get('/test-word', async (req, res) => {
+    try {
+        if (!global.scheduler) {
+            throw new Error('Scheduler not initialized');
+        }
+        await global.scheduler.sendDailyWord();
+        res.send('Test word sent successfully');
+    } catch (error) {
+        Logger.error('Test word error:', error);
+        res.status(500).send(`Error: ${error.message}`);
+    }
+});
 async function startServer() {
     return new Promise((resolve, reject) => {
         try {

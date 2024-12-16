@@ -1,90 +1,79 @@
 const cron = require('node-cron');
 const Logger = require('../utils/logger');
-const VocabularyService = require('./vocabulary');
 
 class Scheduler {
     constructor(whatsappClient, config) {
+        if (!whatsappClient) {
+            throw new Error('WhatsApp client is required for scheduler');
+        }
         this.whatsappClient = whatsappClient;
         this.config = config;
-        this.vocabService = new VocabularyService();
     }
-/*
+
     async sendDailyWord() {
         try {
-            Logger.info('Scheduler: Fetching daily word...');
-            const word = await this.vocabService.getNextWord();
-            
-            Logger.info(`Scheduler: Sending word "${word.Word}" to group...`);
-            await this.whatsappClient.sendMessage(
-                this.config.groupId,
-                word.Message
-            );
-            Logger.info(`Scheduler: Successfully sent word ${word.Word} (ID: ${word.ID})`);
+            Logger.info('Scheduler: Attempting to send daily word...');
+            const message = "🎯 Test Message from VocabBuilder"; // We'll implement actual word fetching later
+            await this.whatsappClient.sendMessage(this.config.groupId, message);
+            Logger.info('Scheduler: Daily word sent successfully');
         } catch (error) {
             Logger.error('Scheduler: Failed to send daily word:', error);
         }
     }
-*/
 
-async sendDailyWord() {
-    try {
-        Logger.info('Scheduler: Fetching daily word...');
-        const word = await this.vocabService.getNextWord();
-        
-        // Format the message
-        const message = `📚 *Word of the Day*\n\n` +
-            `*${word.Word}*\n` +
-            `_(${word.Pronunciation})_\n\n` +
-            `*Definition:* ${word.Definition}\n\n` +
-            `*Example:* ${word.Sentence}\n\n` +
-            `*PM Samples:*\n${word.Examples}`;
-
-        Logger.info(`Scheduler: Sending word "${word.Word}" to group...`);
-        Logger.info('Message to be sent:', message);  // Log the message for debugging
-        
-        await this.whatsappClient.sendMessage(
-            this.config.groupId,
-            message
-        );
-        Logger.info(`Scheduler: Successfully sent word ${word.Word} (ID: ${word.ID})`);
-    } catch (error) {
-        Logger.error('Scheduler: Failed to send daily word:', error);
-        Logger.error('Word data:', error.word);  // Log the word data if available
-    }
-}
-start() {
-    const cronExpression = '0 5 * * *'; // 5 AM daily
-    Logger.info('==== Scheduler Verification ====');
-    Logger.info(`Setting up scheduler with expression: ${cronExpression}`);
+    start() {
+        try {
+            Logger.info('==== Scheduler Configuration ====');
+            
+            // 1. Production schedule - 5 AM daily
+            const productionExpression = '0 5 * * *';
+            Logger.info(`Setting up production schedule for 5 AM Pacific Time`);
+            
+            // 2. Test schedule - 10 minutes from now
+            const testTime = new Date();
+            testTime.setMinutes(testTime.getMinutes() + 10);
+            const testMinutes = testTime.getMinutes();
+            const testHours = testTime.getHours();
+            const testExpression = `${testMinutes} ${testHours} * * *`;
+            Logger.info(`Setting up test schedule for: ${testTime.toLocaleString()}`);
     
-    try {
-        const job = cron.schedule(cronExpression, 
-            () => {
-                Logger.info('Cron job triggered');
-                this.sendDailyWord();
-            }, 
-            {
-                timezone: 'America/Los_Angeles',
-                scheduled: true
+            // Validate both expressions
+            if (!cron.validate(productionExpression) || !cron.validate(testExpression)) {
+                throw new Error('Invalid cron expression');
             }
-        );
-
-        Logger.info('Scheduler status:', job.getStatus());
-        
-        // Calculate next run
-        const nextRun = new Date();
-        nextRun.setHours(5, 0, 0, 0);
-        if (nextRun < new Date()) {
-            nextRun.setDate(nextRun.getDate() + 1);
+    
+            // Schedule both jobs
+            cron.schedule(productionExpression, 
+                () => {
+                    Logger.info('Production schedule triggered, sending daily word...');
+                    this.sendDailyWord();
+                },
+                {
+                    timezone: 'America/Los_Angeles'
+                }
+            );
+    
+            cron.schedule(testExpression, 
+                () => {
+                    Logger.info('Test schedule triggered, sending test word...');
+                    this.sendDailyWord();
+                },
+                {
+                    timezone: 'America/Los_Angeles'
+                }
+            );
+    
+            Logger.info('Schedulers started successfully');
+            Logger.info(`Production schedule: ${productionExpression} (5 AM Pacific daily)`);
+            Logger.info(`Test schedule: ${testExpression} (${testTime.toLocaleString()})`);
+    
+            return true;
+        } catch (error) {
+            Logger.error('Failed to start scheduler:', error);
+            Logger.error('Error details:', error.stack);
+            throw error;
         }
-        Logger.info(`Next scheduled run: ${nextRun.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}`);
-        
-        return job;
-    } catch (error) {
-        Logger.error('Failed to start scheduler:', error);
-        throw error;
     }
-}
 }
 
 module.exports = Scheduler;
