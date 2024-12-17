@@ -1,5 +1,6 @@
 const cron = require('node-cron');
 const Logger = require('../utils/logger');
+const VocabularyService = require('./vocabulary');
 
 class Scheduler {
     constructor(whatsappClient, config) {
@@ -8,16 +9,25 @@ class Scheduler {
         }
         this.whatsappClient = whatsappClient;
         this.config = config;
+        this.vocabularyService = new VocabularyService();
     }
 
     async sendDailyWord() {
         try {
             Logger.info('Scheduler: Attempting to send daily word...');
-            const message = "🎯 Test Message from VocabBuilder"; // We'll implement actual word fetching later
-            await this.whatsappClient.sendMessage(this.config.groupId, message);
-            Logger.info('Scheduler: Daily word sent successfully');
+            const word = await this.vocabularyService.getNextWord();
+            if (!word || !word.Message) {
+                throw new Error('Invalid word or message format');
+            }
+            Logger.info(`Preparing to send word: ${word.Word}`);
+            Logger.info(`Using group ID: ${this.config.groupId}`);
+            
+            await this.whatsappClient.sendMessage(this.config.groupId, word.Message);
+            Logger.info(`Scheduler: Daily word "${word.Word}" sent successfully`);
         } catch (error) {
             Logger.error('Scheduler: Failed to send daily word:', error);
+            Logger.error('Word data:', word);
+            Logger.error('Group ID:', this.config.groupId);
         }
     }
 

@@ -112,12 +112,22 @@ class WhatsAppClient {
 
     async sendMessage(groupId, message) {
         try {
+            Logger.info(`Attempting to send message to group ${groupId}`);
             const chat = await this.client.getChatById(groupId);
+            if (!chat) {
+                throw new Error('Chat not found');
+            }
+            Logger.info('Chat found, sending message...');
             await chat.sendMessage(message);
-            Logger.info(`Message sent to group ${groupId}`);
+            Logger.info(`Message successfully sent to group ${groupId}`);
             return true;
         } catch (error) {
-            Logger.error('Failed to send message:', error);
+            Logger.error('Detailed error in sendMessage:', {
+                error: error.message,
+                stack: error.stack,
+                groupId,
+                messageLength: message?.length
+            });
             throw error;
         }
     }
