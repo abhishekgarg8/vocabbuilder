@@ -41,7 +41,7 @@ class Scheduler {
             
             // 2. Test schedule - 10 minutes from now
             const testTime = new Date();
-            testTime.setMinutes(testTime.getMinutes() + 10);
+            testTime.setMinutes(testTime.getMinutes() + 4);
             const testMinutes = testTime.getMinutes();
             const testHours = testTime.getHours();
             const testExpression = `${testMinutes} ${testHours} * * *`;
