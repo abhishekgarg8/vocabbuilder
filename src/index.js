@@ -7,6 +7,13 @@ const express = require('express');
 const app = express();
 global.scheduler = null;
 
+//global error handler
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'Reason:', reason);
+    // Optionally exit the process
+    process.exit(1);
+});
+
 // Add basic routes
 app.get('/health', (req, res) => {
     res.status(200).send('OK');
