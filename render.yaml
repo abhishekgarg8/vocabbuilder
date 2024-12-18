@@ -2,10 +2,16 @@ services:
   - type: web
     name: vocabbuilder
     env: node
-    buildCommand: npm install
+    buildCommand:
+    apt-get update && apt-get install -y \
+    libnss3 libatk1.0-0 libcups2 libxss1 libasound2 \
+    libpangocairo-1.0-0 libgtk-3-0 libxshmfence1 \
+    libgconf-2-4 fonts-liberation ca-certificates wget 
+    npm install
     startCommand: npm run prod
     envVars:
       - key: NODE_ENV
         value: production
       - key: GROUP_ID
         value: "120363377431957386@g.us"
+    

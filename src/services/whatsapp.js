@@ -11,7 +11,7 @@ class WhatsAppClient {
             }),
             puppeteer: {
                 headless: true,
-                args: ['--no-sandbox', '--disable-setuid-sandbox','--disable-dev-shm-usage', '--disable-extensions','--disable-gpu']
+                args: ['--no-sandbox', '--disable-setuid-sandbox','--disable-dev-shm-usage', '--disable-extensions','--disable-gpu','--enable-logging','--v=1']
         }
         });
 
