@@ -47,6 +47,7 @@ class WhatsAppClient {
         this.client.on('authenticated', () => {
             const fs = require('fs');
             Logger.info('WhatsApp client authenticated');
+            Logger.info('Session directory contents:', fs.readdirSync('./sessions'));
             try {
                 const cwd = process.cwd();
                 Logger.info(`Current working directory: ${cwd}`);

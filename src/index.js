@@ -9,7 +9,7 @@ global.scheduler = null;
 
 //global error handler
 process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'Reason:', reason);
+    Logger.error('Unhandled Rejection at:', promise, 'Reason:', reason);
     // Optionally exit the process
     process.exit(1);
 });

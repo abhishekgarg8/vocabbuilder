@@ -47,11 +47,15 @@ class Scheduler {
             const testExpression = `${testMinutes} ${testHours} * * *`;
             Logger.info(`Setting up test schedule for: ${testTime.toLocaleString()}`);
     
+            Logger.info('Production cron expression valid:', cron.validate(productionExpression));
+            Logger.info('Test cron expression valid:', cron.validate(testExpression));
+
             // Validate both expressions
             if (!cron.validate(productionExpression) || !cron.validate(testExpression)) {
                 throw new Error('Invalid cron expression');
             }
-    
+            Logger.info('Current Timezone:', Intl.DateTimeFormat().resolvedOptions().timeZone);
+
             // Schedule both jobs
             cron.schedule(productionExpression, 
                 () => {
