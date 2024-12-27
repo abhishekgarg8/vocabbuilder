@@ -10,7 +10,6 @@ class Scheduler {
         this.whatsappClient = whatsappClient;
         this.config = config;
         this.vocabularyService = new VocabularyService();
-        this.cronTasks = []; // Track all cron jobs
     }
 
     async sendDailyWord() {
@@ -33,51 +32,7 @@ class Scheduler {
     }
 
     start() {
-        try {
-            Logger.info('==== Scheduler Configuration ====');
-            // Stop existing cron tasks
-            this.cronTasks.forEach(task => task.stop());
-            this.cronTasks = []; // Clear the array 
-            // Log the configuration
-            Logger.info('Scheduler Config:', this.config);
-           // Production schedule - 5 AM daily
-            const productionExpression = '0 5 * * *';
-            const productionTask = cron.schedule(
-               productionExpression,
-               () => {
-                   Logger.info('Production schedule triggered, sending daily word...');
-                   this.sendDailyWord();
-               },
-               { timezone: 'America/Los_Angeles' }
-            );
-            this.cronTasks.push(productionTask); // Track the task
-
-            // 2. Test schedule - 10 minutes from now
-            const testTime = new Date();
-            testTime.setMinutes(testTime.getMinutes() + 4);
-            const testMinutes = testTime.getMinutes();
-            const testHours = testTime.getHours();
-            const testExpression = `${testMinutes} ${testHours} * * *`;
-            Logger.info(`Setting up test schedule for: ${testTime.toLocaleString()}`);
-            Logger.info('Production cron expression valid:', cron.validate(productionExpression));
-            Logger.info('Test cron expression valid:', cron.validate(testExpression));
-            const testTask = cron.schedule(
-                testExpression,
-                () => {
-                    Logger.info('Test schedule triggered, sending test word...');
-                    this.sendDailyWord();
-                },
-                { timezone: 'America/Los_Angeles' }
-            );
-            this.cronTasks.push(testTask); // Track the task
-
-            Logger.info('Schedulers started successfully');
-            return true;
-        } catch (error) {
-            Logger.error('Failed to start scheduler:', error);
-            Logger.error('Error details:', error.stack);
-            throw error;
-        }
+        Logger.info('Scheduler start called, but cron scheduling is now handled externally.');
     }
 }
 
