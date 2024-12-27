@@ -7,6 +7,9 @@ const express = require('express');
 const app = express();
 global.scheduler = null;
 
+// Global variable to prevent redundant scheduler initialization
+let isSchedulerInitialized = false;
+
 //global error handler
 process.on('unhandledRejection', (reason, promise) => {
     Logger.error('Unhandled Rejection at:', promise, 'Reason:', reason);
@@ -79,10 +82,14 @@ async function initialize() {
         // Then initialize WhatsApp
         const whatsappClient = new WhatsAppClient();
         whatsappClient.client.on('ready', async () => {
+            if (isSchedulerInitialized) {
+                Logger.info('Scheduler is already initialized. Skipping reinitialization.');
+                return;
+            }
             Logger.info('WhatsApp client is ready, initializing scheduler...');
             try {
                 global.scheduler = new Scheduler(whatsappClient, config);
-                // global.scheduler.start();
+                isSchedulerInitialized = true;
                 Logger.info('Scheduler initialized and started successfully');
             } catch (error) {
                 Logger.error('Failed to initialize scheduler:', error);

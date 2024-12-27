@@ -92,9 +92,21 @@ class WhatsAppClient {
 
         this.client.on('disconnected', async (reason) => {
             Logger.error('WhatsApp client disconnected:', reason);
-            await this.destroy();
-            Logger.info('Reinitializing WhatsApp client...');
-            await this.start();
+            let retryCount = 0;
+            const MAX_RETRIES = 2;
+            while (retryCount < MAX_RETRIES) {
+                try {
+                    retryCount++;
+                    Logger.info(`Attempting to reconnect (${retryCount}/${MAX_RETRIES})...`);
+                    await this.start();
+                    break; // Exit loop if successful
+                } catch (err) {
+                    Logger.error('Reconnection attempt failed:', err);
+                    if (retryCount === MAX_RETRIES) {
+                        Logger.error('Max reconnection attempts reached. Exiting.');
+                    }
+                }
+            }
         });
 
         // Handle errors

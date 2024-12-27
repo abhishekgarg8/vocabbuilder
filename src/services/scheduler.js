@@ -37,4 +37,11 @@ class Scheduler {
     }
 }
 
+process.on('unhandledRejection', (reason, promise) => {
+    Logger.error('Unhandled Rejection:', reason);
+    if (reason && reason.stack) {
+        Logger.error('Stack trace:', reason.stack);
+    }
+});
+
 module.exports = Scheduler;
