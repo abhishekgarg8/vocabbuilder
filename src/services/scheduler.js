@@ -13,6 +13,7 @@ class Scheduler {
     }
 
     async sendDailyWord() {
+        let word = null; // Ensure word is always defined
         try {
             Logger.info('Scheduler: Attempting to send daily word...');
             const word = await this.vocabularyService.getNextWord();

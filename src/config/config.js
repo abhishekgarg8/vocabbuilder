@@ -1,4 +1,5 @@
 require('dotenv').config();
+console.log('Environment Variables:', process.env);
 
 module.exports = {
     environment: process.env.NODE_ENV || 'development',

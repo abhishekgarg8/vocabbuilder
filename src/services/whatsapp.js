@@ -90,8 +90,11 @@ class WhatsAppClient {
             Logger.error('WhatsApp authentication failed:', msg);
         });
 
-        this.client.on('disconnected', (reason) => {
+        this.client.on('disconnected', async (reason) => {
             Logger.error('WhatsApp client disconnected:', reason);
+            await this.destroy();
+            Logger.info('Reinitializing WhatsApp client...');
+            await this.start();
         });
 
         // Handle errors

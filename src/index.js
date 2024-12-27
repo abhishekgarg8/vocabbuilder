@@ -38,12 +38,27 @@ app.get('/test-word', async (req, res) => {
         res.status(500).send(`Error: ${error.message}`);
     }
 });
+
+app.get('/send-daily-word', async (req, res) => {
+    try {
+        if (!global.scheduler) {
+            throw new Error('Scheduler not initialized');
+        }
+        await global.scheduler.sendDailyWord();
+        res.status(200).send('Daily word sent successfully');
+    } catch (error) {
+        Logger.error('Error in /send-daily-word endpoint:', error);
+        res.status(500).send(`Error: ${error.message}`);
+    }
+});
+
 async function startServer() {
     return new Promise((resolve, reject) => {
         try {
             const port = process.env.PORT || 10000;
             const server = app.listen(port, '0.0.0.0', () => {
                 Logger.info(`Server is running on port ${port}`);
+                Logger.info(`Loaded groupId from config: ${config.groupId}`);
                 resolve(server);
             });
         } catch (error) {
@@ -67,7 +82,7 @@ async function initialize() {
             Logger.info('WhatsApp client is ready, initializing scheduler...');
             try {
                 global.scheduler = new Scheduler(whatsappClient, config);
-                global.scheduler.start();
+                // global.scheduler.start();
                 Logger.info('Scheduler initialized and started successfully');
             } catch (error) {
                 Logger.error('Failed to initialize scheduler:', error);
@@ -89,6 +104,9 @@ process.on('uncaughtException', (error) => {
 process.on('unhandledRejection', (reason, promise) => {
     Logger.error('Unhandled Rejection at:', promise);
     Logger.error('Reason:', reason);
+    if (reason && reason.stack) {
+        Logger.error('Stack trace:', reason.stack);
+    }
 });
 
 initialize();
