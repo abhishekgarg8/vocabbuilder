@@ -1,6 +1,7 @@
 const cron = require('node-cron');
 const Logger = require('../utils/logger');
 const VocabularyService = require('./vocabulary');
+const groupId = "120363377431957386@g.us"; // Hardcoded Group ID
 
 class Scheduler {
     constructor(whatsappClient, config) {
@@ -21,14 +22,14 @@ class Scheduler {
                 throw new Error('Invalid word or message format');
             }
             Logger.info(`Preparing to send word: ${word.Word}`);
-            Logger.info(`Using group ID: ${this.config.groupId}`);
-            
-            await this.whatsappClient.sendMessage(this.config.groupId, word.Message);
+          //  Logger.info(`Using group ID: ${this.config.groupId}`);
+            Logger.info(`Using group ID: ${groupId}`);
+            await this.whatsappClient.sendMessage(groupId, word.Message);
             Logger.info(`Scheduler: Daily word "${word.Word}" sent successfully`);
         } catch (error) {
             Logger.error('Scheduler: Failed to send daily word:', error);
             Logger.error('Word data:', word);
-            Logger.error('Group ID:', this.config.groupId);
+            Logger.error('Group ID:', groupId);
         }
     }
 
