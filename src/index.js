@@ -1,9 +1,9 @@
+require('dotenv').config();
 const config = require('./config/config');
 const Logger = require('./utils/logger');
 const WhatsAppClient = require('./services/whatsapp');
 const Scheduler = require('./services/scheduler');
 const express = require('express');
-require('dotenv').config();
 
 const app = express();
 global.scheduler = null;
