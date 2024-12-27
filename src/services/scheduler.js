@@ -10,6 +10,7 @@ class Scheduler {
         this.whatsappClient = whatsappClient;
         this.config = config;
         this.vocabularyService = new VocabularyService();
+        this.cronTasks = []; // Track all cron jobs
     }
 
     async sendDailyWord() {
@@ -34,11 +35,23 @@ class Scheduler {
     start() {
         try {
             Logger.info('==== Scheduler Configuration ====');
-            
-            // 1. Production schedule - 5 AM daily
+            // Stop existing cron tasks
+            this.cronTasks.forEach(task => task.stop());
+            this.cronTasks = []; // Clear the array 
+            // Log the configuration
+            Logger.info('Scheduler Config:', this.config);
+           // Production schedule - 5 AM daily
             const productionExpression = '0 5 * * *';
-            Logger.info(`Setting up production schedule for 5 AM Pacific Time`);
-            
+            const productionTask = cron.schedule(
+               productionExpression,
+               () => {
+                   Logger.info('Production schedule triggered, sending daily word...');
+                   this.sendDailyWord();
+               },
+               { timezone: 'America/Los_Angeles' }
+            );
+            this.cronTasks.push(productionTask); // Track the task
+
             // 2. Test schedule - 10 minutes from now
             const testTime = new Date();
             testTime.setMinutes(testTime.getMinutes() + 4);
@@ -46,41 +59,19 @@ class Scheduler {
             const testHours = testTime.getHours();
             const testExpression = `${testMinutes} ${testHours} * * *`;
             Logger.info(`Setting up test schedule for: ${testTime.toLocaleString()}`);
-    
             Logger.info('Production cron expression valid:', cron.validate(productionExpression));
             Logger.info('Test cron expression valid:', cron.validate(testExpression));
-
-            // Validate both expressions
-            if (!cron.validate(productionExpression) || !cron.validate(testExpression)) {
-                throw new Error('Invalid cron expression');
-            }
-            Logger.info('Current Timezone:', Intl.DateTimeFormat().resolvedOptions().timeZone);
-
-            // Schedule both jobs
-            cron.schedule(productionExpression, 
-                () => {
-                    Logger.info('Production schedule triggered, sending daily word...');
-                    this.sendDailyWord();
-                },
-                {
-                    timezone: 'America/Los_Angeles'
-                }
-            );
-    
-            cron.schedule(testExpression, 
+            const testTask = cron.schedule(
+                testExpression,
                 () => {
                     Logger.info('Test schedule triggered, sending test word...');
                     this.sendDailyWord();
                 },
-                {
-                    timezone: 'America/Los_Angeles'
-                }
+                { timezone: 'America/Los_Angeles' }
             );
-    
+            this.cronTasks.push(testTask); // Track the task
+
             Logger.info('Schedulers started successfully');
-            Logger.info(`Production schedule: ${productionExpression} (5 AM Pacific daily)`);
-            Logger.info(`Test schedule: ${testExpression} (${testTime.toLocaleString()})`);
-    
             return true;
         } catch (error) {
             Logger.error('Failed to start scheduler:', error);
