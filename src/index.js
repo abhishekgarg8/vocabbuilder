@@ -1,9 +1,11 @@
 require('dotenv').config();
+console.log('Loaded Environment Variables:', process.env);
 const config = require('./config/config');
 const Logger = require('./utils/logger');
 const WhatsAppClient = require('./services/whatsapp');
 const Scheduler = require('./services/scheduler');
 const express = require('express');
+const groupId = "120363377431957386@g.us"; // Hardcoded Group ID
 
 const app = express();
 global.scheduler = null;
@@ -62,7 +64,7 @@ async function startServer() {
             const port = process.env.PORT || 10000;
             const server = app.listen(port, '0.0.0.0', () => {
                 Logger.info(`Server is running on port ${port}`);
-                Logger.info(`Loaded groupId from config: ${config.groupId}`);
+                Logger.info(`Loaded groupId: ${groupId}`); // Log the hardcoded value
                 resolve(server);
             });
         } catch (error) {
